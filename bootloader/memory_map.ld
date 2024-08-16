@@ -10,6 +10,8 @@ MEMORY
 
 __bootrom_start__ = ORIGIN(bootrom);
 __bootrom_size__ = LENGTH(bootrom);
-__approm_start__ = ORIGIN(approm1);
+__approm1_start__ = ORIGIN(approm1);
+__approm2_start__ = ORIGIN(approm2);
+__variables_start__ = ORIGIN(var);
 __approm_size__ = LENGTH(approm1);
-__ram_start__ = ORIGIN(ram)+64;
+__ram_start__ = ORIGIN(ram)+1024;

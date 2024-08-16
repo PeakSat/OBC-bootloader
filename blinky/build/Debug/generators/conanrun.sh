@@ -1,1 +1,0 @@
-. "C:\Users\iliaz\Desktop\blinky1\minimal-dev-setup\examples\blinky\build\Debug\generators\conanrunenv-debug-armv7.sh"

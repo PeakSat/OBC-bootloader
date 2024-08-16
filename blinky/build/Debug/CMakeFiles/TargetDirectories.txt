@@ -1,7 +1,0 @@
-C:/Users/iliaz/Desktop/blinky1/minimal-dev-setup/examples/blinky/build/Debug/CMakeFiles/mcu_config.dir
-C:/Users/iliaz/Desktop/blinky1/minimal-dev-setup/examples/blinky/build/Debug/CMakeFiles/mhc-gen-plib.dir
-C:/Users/iliaz/Desktop/blinky1/minimal-dev-setup/examples/blinky/build/Debug/CMakeFiles/mhc-gen-irq.dir
-C:/Users/iliaz/Desktop/blinky1/minimal-dev-setup/examples/blinky/build/Debug/CMakeFiles/mhc-gen-sysinit.dir
-C:/Users/iliaz/Desktop/blinky1/minimal-dev-setup/examples/blinky/build/Debug/CMakeFiles/Blinky.dir
-C:/Users/iliaz/Desktop/blinky1/minimal-dev-setup/examples/blinky/build/Debug/CMakeFiles/edit_cache.dir
-C:/Users/iliaz/Desktop/blinky1/minimal-dev-setup/examples/blinky/build/Debug/CMakeFiles/rebuild_cache.dir
