@@ -1,0 +1,68 @@
+"C:\Program Files\JetBrains\CLion 2024.1.4\bin\cmake\win\x64\bin\cmake.exe" --preset conan-debug -S C:\Users\iliaz\Desktop\blinky1\minimal-dev-setup\examples\blinky -B C:\Users\iliaz\Desktop\blinky1\minimal-dev-setup\examples\blinky\build\Debug
+Preset CMake variables:
+
+  CMAKE_BUILD_TYPE="Debug"
+  CMAKE_POLICY_DEFAULT_CMP0091="NEW"
+  CMAKE_TOOLCHAIN_FILE:FILEPATH="generators\conan_toolchain.cmake"
+
+-- Using Conan toolchain: C:/Users/iliaz/Desktop/blinky1/minimal-dev-setup/examples/blinky/build/Debug/generators/conan_toolchain.cmake
+-- The C compiler identification is GNU 10.3.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: C:/Program Files (x86)/GNU Arm Embedded Toolchain/10 2021.10/bin/arm-none-eabi-gcc.exe - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Conan: Target declared 'harmony::harmony'
+-- Conan: Component target declared 'samv71-dfp::Core'
+-- Conan: Component target declared 'samv71-dfp::SAMV71J19B::Linker::Flash'
+-- Conan: Component target declared 'samv71-dfp::SAMV71J19B::Linker::SRAM'
+-- Conan: Component target declared 'samv71-dfp::SAMV71J20B::Linker::Flash'
+-- Conan: Component target declared 'samv71-dfp::SAMV71J20B::Linker::SRAM'
+-- Conan: Component target declared 'samv71-dfp::SAMV71J21B::Linker::Flash'
+-- Conan: Component target declared 'samv71-dfp::SAMV71J21B::Linker::SRAM'
+-- Conan: Component target declared 'samv71-dfp::SAMV71N19B::Linker::Flash'
+-- Conan: Component target declared 'samv71-dfp::SAMV71N19B::Linker::SRAM'
+-- Conan: Component target declared 'samv71-dfp::SAMV71N20B::Linker::Flash'
+-- Conan: Component target declared 'samv71-dfp::SAMV71N20B::Linker::SRAM'
+-- Conan: Component target declared 'samv71-dfp::SAMV71N21B::Linker::Flash'
+-- Conan: Component target declared 'samv71-dfp::SAMV71N21B::Linker::SRAM'
+-- Conan: Component target declared 'samv71-dfp::SAMV71Q19B::Linker::Flash'
+-- Conan: Component target declared 'samv71-dfp::SAMV71Q19B::Linker::SRAM'
+-- Conan: Component target declared 'samv71-dfp::SAMV71Q20B::Linker::Flash'
+-- Conan: Component target declared 'samv71-dfp::SAMV71Q20B::Linker::SRAM'
+-- Conan: Component target declared 'samv71-dfp::SAMV71Q21B::Linker::Flash'
+-- Conan: Component target declared 'samv71-dfp::SAMV71Q21B::Linker::SRAM'
+-- Conan: Component target declared 'samv71-dfp::SAMV71J19B::Startup'
+-- Conan: Component target declared 'samv71-dfp::SAMV71J20B::Startup'
+-- Conan: Component target declared 'samv71-dfp::SAMV71J21B::Startup'
+-- Conan: Component target declared 'samv71-dfp::SAMV71N19B::Startup'
+-- Conan: Component target declared 'samv71-dfp::SAMV71N20B::Startup'
+-- Conan: Component target declared 'samv71-dfp::SAMV71N21B::Startup'
+-- Conan: Component target declared 'samv71-dfp::SAMV71Q19B::Startup'
+-- Conan: Component target declared 'samv71-dfp::SAMV71Q20B::Startup'
+-- Conan: Component target declared 'samv71-dfp::SAMV71Q21B::Startup'
+-- Conan: Target declared 'samv71-dfp::samv71-dfp'
+-- Conan: Component target declared 'CMSIS::Core'
+-- Conan: Target declared 'cmsis::cmsis'
+-- Conan: Target declared 'harmony-csp::harmony-csp'
+-- Conan: Target declared 'harmony-mhc::harmony-mhc'
+-- Conan: Including build module from 'C:/Users/iliaz/.conan2/p/b/harmo8f98c14cabda9/p/cmake/MHCHelper.cmake'
+CMake Warning (dev) at C:/Program Files/JetBrains/CLion 2024.1.4/bin/cmake/win/x64/share/cmake-3.28/Modules/FindPackageHandleStandardArgs.cmake:438 (message):
+  The package name passed to `find_package_handle_standard_args` (Java) does
+  not match the name of the calling package (Harmony).  This can lead to
+  problems in calling code that expects `find_package` result variables
+  (e.g., `_FOUND`) to follow a certain pattern.
+Call Stack (most recent call first):
+  C:/Program Files/JetBrains/CLion 2024.1.4/bin/cmake/win/x64/share/cmake-3.28/Modules/FindJava.cmake:332 (find_package_handle_standard_args)
+  C:/Users/iliaz/.conan2/p/b/harmo8f98c14cabda9/p/cmake/MHCHelper.cmake:1 (include)
+  build/Debug/generators/harmony-config.cmake:38 (include)
+  CMakeLists.txt:5 (find_package)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Found Java: C:/Program Files/Eclipse Adoptium/jdk-17.0.11.9-hotspot/bin/java.exe (found version "17.0.11") 
+-- Found Java: C:/Program Files/Eclipse Adoptium/jdk-17.0.11.9-hotspot/bin/java.exe (found suitable version "17.0.11", minimum required is "1.8") found components: Runtime 
+-- Using Java 17.0.11 for MHC. In case of problems, try Java 8.
+-- Generating Harmony source files for configuration...
+-- Configuring done (24.6s)
+-- Generating done (0.0s)
+-- Build files have been written to: C:/Users/iliaz/Desktop/blinky1/minimal-dev-setup/examples/blinky/build/Debug

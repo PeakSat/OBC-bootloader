@@ -1,0 +1,14 @@
+configName: default
+folderName: ''
+format_version: null
+frameworkPath: C:/Users/iliaz/.conan2/p/b/harmo8f98c14cabda9/p
+processor: ATSAMV71Q21B
+projectName: default
+settings:
+  CMSISPath: ./dev_packs/arm/CMSIS/5.4.0
+  DFPPath: ./dev_packs/Microchip/SAMV71_DFP/4.9.117/samv71b/atdf/ATSAMV71Q21B.atdf
+  FORCE_OPTIMIZATION: 'false'
+  GENERATE_BACKUP: 'true'
+  MERGE_STRATEGY: USER_ALL
+  PackageFilter: csp
+  TRUSTZONE: 'false'
