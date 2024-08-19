@@ -6,7 +6,7 @@ bootloader/final.bin includes the bootloader and a blinky with 1s delay as the f
 blinky_binaries/entry_point_0x503000/0.2s_Delay/blinky.bin is the second firmware with a 0.2s delay and the entry point beeing at 0x503000.
 To upload each firmwre you run openocd in a terminal:
 ```shell
- openocd -f Catmel_samv71_xplained_ultra.cfg
+ openocd -f atmel_samv71_xplained_ultra.cfg
 ```
 connect to the board through telnet with:
 ```shell
