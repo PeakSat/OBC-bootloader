@@ -3,8 +3,8 @@ MEMORY
 {
   bootrom  (rx)  : ORIGIN = 0x00400000, LENGTH = 0x00004000
   var      (rwx) : ORIGIN = 0x00404000, LENGTH = 0x00002000
-  approm1  (rx)  : ORIGIN = 0x00406000, LENGTH = 0x001FD000
-  approm2  (rx)  : ORIGIN = 0x00603000, LENGTH = 0x001FD000
+  approm1  (rx)  : ORIGIN = 0x00406000, LENGTH = 0x000FD000
+  approm2  (rx)  : ORIGIN = 0x00503000, LENGTH = 0x000FD000
   ram      (rwx) : ORIGIN = 0x20400000, LENGTH = 0x60000
 }
 

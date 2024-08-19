@@ -63,33 +63,39 @@ int bootloader(void) {
       bootrom_choise=0;
     }
   }
-  uint32_t var = 0xF0F0F0F0;
 
-  //write the variables to the flash
-  uint32_t iflash_page_size=512;
+  //erase variables
 
   uint32_t variables= (uint32_t)(&__variables_start__);
+  uint32_t iflash_page_size=512;
 
-  for(int i=0; i<10; i++){
-    data_buffer[i]=i;
-  }
+  uint32_t *eefc_fcr = (uint32_t*)(0x400e0c00 + 0x04);
+  uint32_t erase_Command=0x00000007;
+  uint32_t iflash_start = (uint32_t)(&__bootrom_start__);
+  uint32_t page_number = ((variables - iflash_start) / iflash_page_size)|0x2U;
+  uint32_t arg = 0xFFFF & (page_number << 8);
+  uint32_t passwd = 0x5A000000;
+
+  *eefc_fcr = erase_Command | arg | passwd;
+
+  __asm("dmb 0xF":::"memory"); //wait for all previous explicit memory accesses to be observed
+  __asm volatile ("dsb 0xF":::"memory"); //wait for all previous instructions to be completed
+  __asm volatile ("isb 0xF":::"memory"); //flush the pipeline
+
 
   // //write the variables to the flash
   for (uint32_t i = 0; i < iflash_page_size; i += 4U)
   {
-    *((uint32_t *)( variables)) = data_buffer[i/4U];
-    // data++;
+    *(((uint32_t *)( variables)+(i/4U))) = data_buffer[i/4U];
     __asm("dmb 0xF":::"memory"); //wait for all previous explicit memory accesses to be observed
     // __DMB();
   }
 
 /**< Offset: 0x04 ( /W  32) EEFC Flash Command Register */
-  uint32_t *eefc_fcr = (uint32_t*)(0x400e0c00 + 0x04);
+
   uint32_t write_pageCommand=0x00000001;
-  uint32_t iflash_start = (uint32_t)(&__bootrom_start__);
-  uint32_t page_number = ((variables - iflash_start) / iflash_page_size);
-  uint32_t arg = 0xFFFF & (page_number << 8);
-  uint32_t passwd = 0x5A000000;
+  page_number = ((variables - iflash_start) / iflash_page_size);
+  arg = 0xFFFF & (page_number << 8);
 
   *eefc_fcr = write_pageCommand | arg | passwd;
 
