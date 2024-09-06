@@ -32,4 +32,4 @@ target_link_options(bootloader PRIVATE -T ${LINKER_SCRIPT_PATH})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # Set the output file name with the .elf extension
-set_target_properties(bootloader PROPERTIES OUTPUT_NAME "bootloader.elf")
+set_target_properties(bootloader PROPERTIES OUTPUT_NAME "reset_counter.elf")

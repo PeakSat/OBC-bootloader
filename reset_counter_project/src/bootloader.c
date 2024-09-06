@@ -40,16 +40,20 @@ int bootloader(void) {
     * data_buffer[PRIMARY_PARTITION_VARIABLE] holds the ID of the primary boot partition (either 0 or 1)
     */
 
-    if(data_buffer[BOOT_COUNTER]>MAX_REBOOT_TRIES){
-      data_buffer[BOOT_COUNTER]=0;
-      if(data_buffer[PRIMARY_PARTITION_VARIABLE]==FIRST_FIRMWARE_IS_PRIMARY){
-        data_buffer[PRIMARY_PARTITION_VARIABLE]=SECOND_FIRMWARE_IS_PRIMARY;
-      }else{
-        data_buffer[PRIMARY_PARTITION_VARIABLE]=FIRST_FIRMWARE_IS_PRIMARY;
-      }
-    }else{
-      data_buffer[BOOT_COUNTER]++;
-    }
+    /*reset boot counter and set the first partition as primary*/
+    data_buffer[BOOT_COUNTER]=0;
+    data_buffer[PRIMARY_PARTITION_VARIABLE]=FIRST_FIRMWARE_IS_PRIMARY;
+
+    // if(data_buffer[BOOT_COUNTER]>MAX_REBOOT_TRIES){
+    //   data_buffer[BOOT_COUNTER]=0;
+    //   if(data_buffer[PRIMARY_PARTITION_VARIABLE]==FIRST_FIRMWARE_IS_PRIMARY){
+    //     data_buffer[PRIMARY_PARTITION_VARIABLE]=SECOND_FIRMWARE_IS_PRIMARY;
+    //   }else{
+    //     data_buffer[PRIMARY_PARTITION_VARIABLE]=FIRST_FIRMWARE_IS_PRIMARY;
+    //   }
+    // }else{
+    //   data_buffer[BOOT_COUNTER]++;
+    // }
 
 
   /*erase variables partition*/
@@ -84,11 +88,15 @@ int bootloader(void) {
 
   /*branch to the correct firmware*/
   uint32_t *app_code;
-  if(data_buffer[PRIMARY_PARTITION_VARIABLE]==SECOND_FIRMWARE_IS_PRIMARY){
-    app_code = (uint32_t *) &__approm2_start__;
-  }else{
-    app_code = (uint32_t *) &__approm1_start__;
-  }
+
+  /*branch to the entry point of the first firmware regardless*/
+  app_code = (uint32_t *) &__approm1_start__;
+
+  // if(data_buffer[PRIMARY_PARTITION_VARIABLE]==SECOND_FIRMWARE_IS_PRIMARY){
+  //   app_code = (uint32_t *) &__approm2_start__;
+  // }else{
+  //   app_code = (uint32_t *) &__approm1_start__;
+  // }
   uint32_t app_sp = app_code[BOOT_COUNTER];
   uint32_t app_start = app_code[PRIMARY_PARTITION_VARIABLE];
   start_app(app_start,app_sp);

@@ -27,5 +27,5 @@ SECTIONS
         *(.text*)
         *(.rodata*)
         _etext = .;
-    } > bootrom
+    } > approm2
 }
