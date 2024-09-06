@@ -1,4 +1,3 @@
-
 ## Brief
 One of the requirements of the Acubesat/peaksat missions is to have two firmwares installed on the OBC. In order to be able to assess the health of the primary firmware, and boot from the secondary firmware if needed, a custom dual-boot bootloader was developed. Its objective is to count the unsuccessful boot tries, select the correct firmware to boot from and pass information to the firmware. The firmware needs to be able to reset the unsuccessful boot counter and change the order in which the bootloader tries to boot from.
 A high level flow chart of the bootloader logic is shown in the figure below.
@@ -6,10 +5,10 @@ A high level flow chart of the bootloader logic is shown in the figure below.
 graph LR
 A(BOOT) --> B[BOOT COUNTER++]
 B --> C{BOOT COUNTER < 3}
-C -- FALSE --> D[CHANGE<BR>PRIMARY<BR>FIRMWARE]
-D --> F[BOOT COUNTER=0]
+C -- FALSE --> D[BOOT FROM<BR>SECONDARY<BR>FIRMWARE]
 C -- TRUE --> E[BOOT FROM<BR>PRIMARY<BR>FIRMWARE]
-F -->E
+D --> F[BOOT COUNTER=0]
+E --> F
 ```
 
 ## Usage
@@ -19,8 +18,8 @@ The bootloader is a precompiled binary file. The only thing necessary to use it 
 openocd -f atmel_samv71_xplained_ultra.cfg -c "program bootloader.bin 0x00400000 verify reset exit"
 ```
 If you get a “memory region is locked message”, the MCU probably already has a version of the bootloader installed. Erase the chip and try again. After erasing the chip you will also need to set the GPNVM boot mode selection bit using [these](https://gitlab.com/acubesat/software-management/-/wikis/ATSAM/Running-code-on-an-ATSAMV71Q21B-for-the-first-time) instructions.
-Make sure to **UPDATE YOUR LINKER SCRIPT** so that you have the correct memory map. After uploading the bootloader the primary firmware will start at address 0x00406000 and will have a maximum size of 1012 kB.
-For development purposes, you might need a way to boot from the primary firmware regardless of the boot counter. To do this you can load the [reset_boot.bin](https://github.com/PeakSat/OBC-bootloader/tree/reset-counter/bin) binary at 0x00503000, using the instructions on the readme of thet branch. This program resets the counter once the bootloader branches to it, and it branches to the first firmware.
+Make sure to **UPDATE YOUR LINKER SCRIPT** so that you have the correct memory map. To do so, you replace the linker script your project uses with one of the two provided in the linker scripts folder. Under normal development you should use the one with 0x00406000 entry point, shown by the files name. From this point forward the primary firmware will start at address 0x00406000 and will have a maximum size of 1012 kB.
+For development purposes, you might need a way to boot from the primary firmware regardless of the boot counter. To do this you can load the reset_boot.bin binary at 0x00503000, which resets the counter once the bootloader branches to it. At the next reset the bootloader will again branch to 0x00406000.
 
 
 ## High Level Explanation
