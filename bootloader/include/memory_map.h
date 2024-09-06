@@ -4,7 +4,7 @@
 
 #ifndef MEMORY_MAP_H
 #define MEMORY_MAP_H
-// #include "bootloader.ld"
+
 #pragma once
 extern uint32_t __bootrom_start__;
 extern uint32_t __bootrom_size__;

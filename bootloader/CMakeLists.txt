@@ -4,28 +4,32 @@ cmake_minimum_required(VERSION 3.19.2)
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
 # Specify the cross-compiler
-set(CMAKE_C_COMPILER arm-none-eabi-gcc)
+set(CMAKE_SYSTEM_NAME Generic)
+set(CMAKE_C_COMPILER arm-none-eabi-gcc -nostdlib)
 set(CMAKE_CXX_COMPILER arm-none-eabi-g++)
 set(CMAKE_ASM_COMPILER arm-none-eabi-gcc)
 
-# Set the project name and specify the languages
-project(BOOTLOADER C CXX ASM)
+# Project name
+project(Bootloader C CXX ASM)
 
+# Add include directories (for header files)
+include_directories(include)
+
+# Add all necessary compilation options
+add_compile_options(-c -mcpu=cortex-m7)
+
+# Add linker script
 set(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/linker/bootloader.ld)
 
-add_definitions(-DARM_MATH_CM7 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -D__FPU_PRESENT=1)
-SET(CMAKE_EXE_LINKER_FLAGS_INIT "-Wl,-gc-sections,--print-memory-usage -T ${LINKER_SCRIPT}")
+# Add the source files
+add_executable(bootloader src/bootloader.c)
 
+# Linker options: specify the linker script
+get_filename_component(LINKER_SCRIPT_PATH ${LINKER_SCRIPT} ABSOLUTE)
+target_link_options(bootloader PRIVATE -T ${LINKER_SCRIPT_PATH})
 
-include_directories(.)
-include_directories(src)
-include_directories(include)
-include_directories(linker)
+# Set output directory for the build
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
-
-# Define the target
-#add_executable(bootloader.elf ${SRC_FILES})
-add_executable(${PROJECT_NAME}.elf ${SOURCES} ${LINKER_SCRIPT} ${EXTRA_SOURCES})
-
-set(CMAKE_EXE_LINKER_FLAGS
-        "${CMAKE_EXE_LINKER_FLAGS_INIT} -Wl,-Map=${PROJECT_BINARY_DIR}/${PROJECT_NAME}.map")
+# Set the output file name with the .elf extension
+set_target_properties(bootloader PROPERTIES OUTPUT_NAME "bootloader.elf")
