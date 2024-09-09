@@ -1,181 +1,159 @@
 /**
  * \file
  *
- * \brief GCC linker script (flash) for ATSAMV71Q21B
+ * \brief Linker script for running in internal FLASH on the SAMD21J18A
  *
- * Copyright (c) 2022 Microchip Technology Inc.
+ * Copyright (c) 2020 Microchip Technology Inc.
  *
- * \license_start
+ * \asf_license_start
  *
  * \page License
  *
  * SPDX-License-Identifier: Apache-2.0
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the Licence at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * distributed under the License is distributed on an AS IS BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * \license_stop
+ * \asf_license_stop
  *
  */
 
-/*------------------------------------------------------------------------------
- *      Linker script for running in internal FLASH on the ATSAMV71Q21B
- *----------------------------------------------------------------------------*/
 
 OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
 SEARCH_DIR(.)
 
-/*************************************************************************
- * Memory-Region Definitions
- * You may define these as options to the linker when calling
- * the linker via the arm-gcc shell.
- * ie. '-Wl,--defsym=<memory_type>_ORIGIN=<address>'
- * and/or '-Wl,--defsym=<memory_type>_LENGTH=<size>'
- *************************************************************************/
+ENTRY(Reset_Handler)
 
-/* BOOTLOADER_ORIGIN = DEFINED(BOOTLOADER_ORIGIN) ? BOOTLOADER_ORIGIN : 0x00400000;*/
-/* BOOTLOADER_LENGTH = DEFINED(BOOTLOADER_LENGTH) ? BOOTLOADER_LENGTH : 0x00004000;*/
- ROM_ORIGIN = DEFINED(ROM_ORIGIN) ? ROM_ORIGIN : 0x00403000; /*first firmware*/
- ROM_LENGTH = DEFINED(ROM_LENGTH) ? ROM_LENGTH : 0x000FD000; /* rom, (2097152K/2)-(bootloader + shared variables) */
- RAM_ORIGIN = DEFINED(RAM_ORIGIN) ? RAM_ORIGIN : 0x20400000;
- RAM_LENGTH = DEFINED(RAM_LENGTH) ? RAM_LENGTH : 0x60000; /* ram, 393216K */
-
-
-/*************************************************************************
- * Memory-Region Definitions
- * The MEMORY command describes the location and size of blocks of memory
- * on the target device. The command below uses the macros defined above.
- *************************************************************************/
+/* Memory Spaces Definitions */
 MEMORY
 {
-/*    bootrom     : ORIGIN = BOOTLOADER_ORIGIN, LENGTH = BOOTLOADER_LENGTH*/
-    rom (rx)    : ORIGIN = ROM_ORIGIN, LENGTH = ROM_LENGTH
-    ram (rwx)   : ORIGIN = RAM_ORIGIN, LENGTH = RAM_LENGTH
+  rom      (rx)  : ORIGIN = 0x00406000, LENGTH = 0x000FD000/* rom, (2097152K/2)-(bootloader + shared variables) */
+  ram      (rwx) : ORIGIN = 0x20400000, LENGTH = 0x00060000
+  ram_nocache (rwx) : ORIGIN = 0x2045E000, LENGTH = 0x2000
 }
 
-/* The stack size used by the application. NOTE: you need to adjust according to your application. */
-STACK_SIZE = DEFINED(STACK_SIZE) ? STACK_SIZE : DEFINED(__stack_size__) ? __stack_size__ : 0x0400;
+__variables_start__ = 0x00404000;/*start address of the shared variables*/
 
-/* The heapsize used by the application. NOTE: you need to adjust according to your application. */
-HEAP_SIZE = DEFINED(HEAP_SIZE) ? HEAP_SIZE : DEFINED(__heap_size__) ? __heap_size__ : 0x0200;
+/* The stack size used by the application. NOTE: you need to adjust according to your application. */
+STACK_SIZE = DEFINED(STACK_SIZE) ? STACK_SIZE : DEFINED(__stack_size__) ? __stack_size__ : 0x8000;
 
 /* Section Definitions */
 SECTIONS
 {
-    .text :
-    {
-        . = ALIGN(4);
-/*        _sfixed = .;*/
-        KEEP(*(.vectors .vectors.*))
-        *(.text .text.* .gnu.linkonce.t.*)
-        *(.glue_7t) *(.glue_7)
-        *(.rodata .rodata* .gnu.linkonce.r.*)
-        *(.ARM.extab* .gnu.linkonce.armextab.*)
+.text :
+{
+. = ALIGN(4);
+_sfixed = .;
+KEEP(*(.vectors .vectors.*))
+*(.text .text.* .gnu.linkonce.t.*)
+*(.glue_7t) *(.glue_7)
+*(.rodata .rodata* .gnu.linkonce.r.*)
+*(.ARM.extab* .gnu.linkonce.armextab.*)
 
-        /* Support C constructors, and C destructors in both user code
-           and the C library. This also provides support for C++ code. */
-        . = ALIGN(4);
-        KEEP(*(.init))
-        . = ALIGN(4);
-        __preinit_array_start = .;
-        KEEP (*(.preinit_array))
-        __preinit_array_end = .;
+/* Support C constructors, and C destructors in both user code
+   and the C library. This also provides support for C++ code. */
+. = ALIGN(4);
+KEEP(*(.init))
+. = ALIGN(4);
+__preinit_array_start = .;
+KEEP (*(.preinit_array))
+__preinit_array_end = .;
 
-        . = ALIGN(4);
-        __init_array_start = .;
-        KEEP (*(SORT(.init_array.*)))
-        KEEP (*(.init_array))
-        __init_array_end = .;
+. = ALIGN(4);
+__init_array_start = .;
+KEEP (*(SORT(.init_array.*)))
+KEEP (*(.init_array))
+__init_array_end = .;
 
-        . = ALIGN(4);
-        KEEP (*crtbegin.o(.ctors))
-        KEEP (*(EXCLUDE_FILE (*crtend.o) .ctors))
-        KEEP (*(SORT(.ctors.*)))
-        KEEP (*crtend.o(.ctors))
+. = ALIGN(4);
+KEEP (*crtbegin.o(.ctors))
+KEEP (*(EXCLUDE_FILE (*crtend.o) .ctors))
+KEEP (*(SORT(.ctors.*)))
+KEEP (*crtend.o(.ctors))
 
-        . = ALIGN(4);
-        KEEP(*(.fini))
+. = ALIGN(4);
+KEEP(*(.fini))
 
-        . = ALIGN(4);
-        __fini_array_start = .;
-        KEEP (*(.fini_array))
-        KEEP (*(SORT(.fini_array.*)))
-        __fini_array_end = .;
+. = ALIGN(4);
+__fini_array_start = .;
+KEEP (*(.fini_array))
+KEEP (*(SORT(.fini_array.*)))
+__fini_array_end = .;
 
-        KEEP (*crtbegin.o(.dtors))
-        KEEP (*(EXCLUDE_FILE (*crtend.o) .dtors))
-        KEEP (*(SORT(.dtors.*)))
-        KEEP (*crtend.o(.dtors))
+KEEP (*crtbegin.o(.dtors))
+KEEP (*(EXCLUDE_FILE (*crtend.o) .dtors))
+KEEP (*(SORT(.dtors.*)))
+KEEP (*crtend.o(.dtors))
 
-        . = ALIGN(4);
-        _efixed = .;            /* End of text section */
-    } > rom
+. = ALIGN(4);
+_efixed = .;            /* End of text section */
+} > rom
 
-    /* .ARM.exidx is sorted, so has to go in its own output section.  */
-    PROVIDE_HIDDEN (__exidx_start = .);
-    .ARM.exidx :
-    {
-      *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-    } > rom
-    PROVIDE_HIDDEN (__exidx_end = .);
+/* .ARM.exidx is sorted, so has to go in its own output section.  */
+PROVIDE_HIDDEN (__exidx_start = .);
+.ARM.exidx :
+{
+*(.ARM.exidx* .gnu.linkonce.armexidx.*)
+} > rom
+PROVIDE_HIDDEN (__exidx_end = .);
 
-    . = ALIGN(4);
-    _etext = .;
+. = ALIGN(4);
+_etext = .;
 
-    .relocate : AT (_etext)
-    {
-        . = ALIGN(4);
+.relocate : AT (_etext)
+        {
+                . = ALIGN(4);
         _srelocate = .;
         *(.ramfunc .ramfunc.*);
         *(.data .data.*);
         . = ALIGN(4);
         _erelocate = .;
-    } > ram
+        } > ram
 
-    /* .bss section which is used for uninitialized data */
-    .bss (NOLOAD) :
-    {
-        . = ALIGN(4);
-        _sbss = . ;
-        _szero = .;
-        *(.bss .bss.*)
-        *(COMMON)
-        . = ALIGN(4);
-        _ebss = . ;
-        _ezero = .;
-    } > ram
+/* .bss section which is used for uninitialized data */
+.bss (NOLOAD) :
+{
+. = ALIGN(4);
+_sbss = . ;
+_szero = .;
+*(.bss .bss.*)
+*(COMMON)
+. = ALIGN(4);
+_ebss = . ;
+_ezero = .;
+} > ram
 
-    /* heap section */
-    .heap (NOLOAD):
-    {
-        . = ALIGN(8);
-         _sheap = .;
-        . = . + HEAP_SIZE;
-        . = ALIGN(8);
-        _eheap = .;
-    } > ram
+/* stack section */
+.stack (NOLOAD):
+{
+. = ALIGN(8);
+_sstack = .;
+. = . + STACK_SIZE;
+. = ALIGN(8);
+_stack = .;
+} > ram
 
-    /* stack section */
-    .stack (NOLOAD):
-    {
-        . = ALIGN(8);
-        _sstack = .;
-        . = . + STACK_SIZE;
-        . = ALIGN(8);
-        _estack = .;
-    } > ram
+/* non cacheable area for CAN */
+.ram_nocache (NOLOAD):
+{
+. = ALIGN(4);
+_s_ram_nocache = .;
+*(.ram_nocache)
+. = ALIGN(4);
+_e_ram_nocache = .;
+} > ram_nocache
 
-    . = ALIGN(4);
-    _end = . ;
-    _ram_end_ = ORIGIN(ram) + LENGTH(ram) - 1 ;
+. = ALIGN(4);
+_end = . ;
+end = _end;
 }

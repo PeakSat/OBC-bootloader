@@ -5,25 +5,26 @@ A high level flow chart of the bootloader logic is shown in the figure below.
 graph LR
 A(BOOT) --> B[BOOT COUNTER++]
 B --> C{BOOT COUNTER < 3}
-C -- FALSE --> D[BOOT FROM<BR>SECONDARY<BR>FIRMWARE]
-C -- TRUE --> E[BOOT FROM<BR>PRIMARY<BR>FIRMWARE]
-D --> F[BOOT COUNTER=0]
-E --> F
+C -- FALSE --> F
+C -- TRUE --> G[CHANGE<BR>PRIMARY<BR>FIRMWARE]
+G --> F[BOOT COUNTER=0]
+E[BOOT FROM<BR>PRIMARY<BR>FIRMWARE]
+F --> E
 ```
 
 ## Usage
 
-The bootloader is a precompiled binary file. The only thing necessary to use it is to upload it correctly. One easy way to do it is to use OpenOCD. If you already have it you can just run the command:
+The bootloader is a precompiled binary file. The only thing necessary to use it is to upload it correctly. One easy way to do it is to use OpenOCD. If you already have it you can go to bootoader/bin and just run the command:
 ```shell
 openocd -f atmel_samv71_xplained_ultra.cfg -c "program bootloader.bin 0x00400000 verify reset exit"
 ```
-If you get a “memory region is locked message”, the MCU probably already has a version of the bootloader installed. Erase the chip and try again. After erasing the chip you will also need to set the GPNVM boot mode selection bit using [these](https://gitlab.com/acubesat/software-management/-/wikis/ATSAM/Running-code-on-an-ATSAMV71Q21B-for-the-first-time) instructions.
+If you get a “memory region is locked message”, the MCU probably already has a version of the bootloader installed (or the memory is locked for some other reaso). Erase the chip and try again. After erasing the chip you will also need to set the GPNVM boot mode selection bit using [these](https://gitlab.com/acubesat/software-management/-/wikis/ATSAM/Running-code-on-an-ATSAMV71Q21B-for-the-first-time) instructions.
 Make sure to **UPDATE YOUR LINKER SCRIPT** so that you have the correct memory map. To do so, you replace the linker script your project uses with one of the two provided in the linker scripts folder. Under normal development you should use the one with 0x00406000 entry point, shown by the files name. From this point forward the primary firmware will start at address 0x00406000 and will have a maximum size of 1012 kB.
 For development purposes, you might need a way to boot from the primary firmware regardless of the boot counter. To do this you can load the reset_boot.bin binary at 0x00503000, which resets the counter once the bootloader branches to it. At the next reset the bootloader will again branch to 0x00406000.
 
 
 ## High Level Explanation
-The bootloader starts by copying the variables from a memory location which is shared with the firmwares. One of the variables stored there is the boot counter. Every time the bootloader is executed, it adds 1 to that variable. It is the firmwares responsibility to reset the boot counter to 0. If it fails to do so, the bootloader will assume that the firmware did not boot correctly and boot from the secondary firmware.
+The bootloader starts by locking the memory region it occupies. Then it copies the variables from a memory location which is shared with the firmwares. One of the variables stored there is the boot counter. Every time the bootloader is executed, it adds 1 to that variable. It is the firmwares responsibility to reset the boot counter to 0. If it fails to do so, the bootloader will assume that the firmware did not boot correctly and boot from the secondary firmware.
 
 The next variable sets the primary firmware. At any given time there will be two firmwares installed on the internal flash of the ATSAMV71Q21B. The location of the primary firmware might change, thus primary firmware does not mean the first firmware in memory. For example, a new firmware upload might be put at the second memory partition. Then the bootloader should be informed that the second partition contains the primary firmware by changing the appropriate variable on the shared memory. On the next boot, the bootloader will boot on the second partition, which contains the primary firmware.
 
