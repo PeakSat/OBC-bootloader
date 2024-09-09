@@ -17,7 +17,7 @@ The bootloader is a precompiled binary file. The only thing necessary to use it 
 ```shell
 openocd -f atmel_samv71_xplained_ultra.cfg -c "program bootloader.bin 0x00400000 verify reset exit"
 ```
-(The included config file uses the CMSIS-DAP programming interface. Select the correct file for the interface you want to use)
+(The included config file uses the CMSIS-DAP programming interface. Select the correct file for the interface you want to use).
 If you get a “memory region is locked message”, the MCU probably already has a version of the bootloader installed (or the memory is locked for some other reason). Erase the chip and try again. After erasing the chip you will also need to set the GPNVM boot mode selection bit using [these](https://gitlab.com/acubesat/software-management/-/wikis/ATSAM/Running-code-on-an-ATSAMV71Q21B-for-the-first-time) instructions.
 Make sure to **UPDATE YOUR LINKER SCRIPT** so that you have the correct memory map. To do so, you replace the linker script your project uses with one of the two provided in the linker scripts folder. Under normal development you should use the one with 0x00406000 entry point, shown by the files name. From this point forward the primary firmware will start at address 0x00406000 and will have a maximum size of 1012 kB.
 You do need to **CHANGE YOUR CMAKE**/make/ninja or whatever you are using to build your project, so that it points to the new linker script.
