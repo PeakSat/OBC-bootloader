@@ -20,8 +20,26 @@ openocd -f atmel_samv71_xplained_ultra.cfg -c "program bootloader.bin 0x00400000
 ```
 If you get a “memory region is locked message”, the MCU probably already has a version of the bootloader installed (or the memory is locked for some other reaso). Erase the chip and try again. After erasing the chip you will also need to set the GPNVM boot mode selection bit using [these](https://gitlab.com/acubesat/software-management/-/wikis/ATSAM/Running-code-on-an-ATSAMV71Q21B-for-the-first-time) instructions.
 Make sure to **UPDATE YOUR LINKER SCRIPT** so that you have the correct memory map. To do so, you replace the linker script your project uses with one of the two provided in the linker scripts folder. Under normal development you should use the one with 0x00406000 entry point, shown by the files name. From this point forward the primary firmware will start at address 0x00406000 and will have a maximum size of 1012 kB.
+You do need to **CHANGE YOUR CMAKE**/make/ninja or whatever you are using to build your project, so that it points to the new linker script.
 For development purposes, you might need a way to boot from the primary firmware regardless of the boot counter. To do this you can load the reset_boot.bin binary at 0x00503000, which resets the counter once the bootloader branches to it. At the next reset the bootloader will again branch to 0x00406000.
+You also need to add some code to your project so that it resets the boot counter every time it runs. reseting the counter means that your firmware runs properly. So you need to be sure that you **RESET THE COUNTER ONLY AFTER NOMINAL OPERATION IS OBSERVED**. Failing to reset the counter, or reseting it at the wrong time, will lead to undesired behaviour. If you have installed the MHC peripheral libraries this code should do the trick:
+```shell
+uint32_t variables=(uint32_t)(&__variables_start__);// "&" does not dereference a pointer. The value of __variables_start__ is put to the data pointer  
+uint32_t *data = (uint32_t *) variables;  
+uint32_t data_buffer[IFLASH_PAGE_SIZE/sizeof(uint32_t)];  
 
+data_buffer[0]=0;//reset counter  
+data_buffer[1]=data[1];//keep primary firmware the same  
+
+for(int i=2; i++; i<IFLASH_PAGE_SIZE/sizeof(uint32_t)) // reduce memory wear  
+{  
+    data_buffer[i]=0xFFFFFFFF;  
+}  
+
+EFC_SectorErase(variables);  
+EFC_PageBufferWrite(data_buffer,variables);
+```
+**THIS IS C CODE** so if you want to call it from a c++ routine, you will have to declare it as extern "C". You will also need to declare the \_\_variables_start\_\_ variable as ```extern uint32_t __variables_start__;``` in a .h file so that the compiler can find it. If you are facing problems you can just set variables to 0x404000, but it is not advised.
 
 ## High Level Explanation
 The bootloader starts by locking the memory region it occupies. Then it copies the variables from a memory location which is shared with the firmwares. One of the variables stored there is the boot counter. Every time the bootloader is executed, it adds 1 to that variable. It is the firmwares responsibility to reset the boot counter to 0. If it fails to do so, the bootloader will assume that the firmware did not boot correctly and boot from the secondary firmware.
