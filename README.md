@@ -43,13 +43,16 @@ for(int i=2; i++; i<IFLASH_PAGE_SIZE/sizeof(uint32_t)) // reduce memory wear
 EFC_SectorErase(variables);  
 EFC_PageBufferWrite(data_buffer,variables);
 ```
-**THIS IS C CODE** so if you want to call it from a c++ routine, you will have to declare it as extern "C". You will also need to declare the \_\_variables_start\_\_ variable as ```extern uint32_t __variables_start__;``` in a .h file so that the compiler can find it. If you are facing problems you can just set variables to 0x404000, but it is not advised.
+**THIS IS C CODE** so if you want to call it from a c++ routine, you will have to declare it as extern "C". You will also need to declare the \_\_variables_start\_\_ variable as ```extern uint32_t __variables_start__;``` in a .h file so that the compiler can find it. If you are facing problems you can just set \_\_variables_start\_\_ to 0x404000, but it is not advised.
 
 ## High Level Explanation
-The bootloader starts by locking the memory region it occupies. Then it copies the variables from a memory location which is shared with the firmwares. One of the variables stored there is the boot counter. Every time the bootloader is executed, it adds 1 to that variable. It is the firmwares responsibility to reset the boot counter to 0. If it fails to do so, the bootloader will assume that the firmware did not boot correctly and boot from the secondary firmware.
+The bootloader starts by locking the memory region it occupies. Then it copies the variables from the memory location which is shared with the firmwares, and stores them in a buffer. One of the variables stored there is the boot counter. Every time the bootloader is executed, it adds 1 to that variable. It is the firmwares responsibility to reset the boot counter to 0. If it fails to do so, the bootloader will assume that the firmware did not boot correctly, and after 3 tries boot from the secondary firmware.
 
 The next variable sets the primary firmware. At any given time there will be two firmwares installed on the internal flash of the ATSAMV71Q21B. The location of the primary firmware might change, thus primary firmware does not mean the first firmware in memory. For example, a new firmware upload might be put at the second memory partition. Then the bootloader should be informed that the second partition contains the primary firmware by changing the appropriate variable on the shared memory. On the next boot, the bootloader will boot on the second partition, which contains the primary firmware.
 
 After reading these variables, the bootloader can decide the appropriate firmware to boot from. Before branching to the correct memory address, it needs to erase the shared memory and write the buffer with the updated variables to the memory. The erase is necessary since only 0s can be programed in the type of memory that the MCU is using.
 
 Finally the bootloader can branch to the firmwares entry point. Two things need to be implemented in the firmware for the bootloader to work correctly. One is the reset of the boot counter, which should happen at every successful boot and the second is to change the primary boot variable after a successful firmware upgrade.
+
+## TBD
+Implement the rebootCounter and changePrimaryFirmware functions in a library for ease of use.
