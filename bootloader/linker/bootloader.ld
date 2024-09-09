@@ -1,4 +1,5 @@
-/* bootloader.ld */
+/* bootloader.ld
+Created by Ilia Zarka on 6/8/2024.*/
 MEMORY
 {
   bootrom  (rx)  : ORIGIN = 0x00400000, LENGTH = 0x00004000

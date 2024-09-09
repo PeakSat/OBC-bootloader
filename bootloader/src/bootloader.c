@@ -1,5 +1,5 @@
 //
-// Created by iliaz on 6/8/2024.
+// Created by Ilia Zarka on 6/8/2024.
 //
 #include <inttypes.h>
 #include "memory_map.h"
@@ -27,6 +27,15 @@ const Vectors myVec = {
 
 int bootloader(void) {
 
+    /*lock bootloader region. (Yes it is only needed once, but it's the easiest way)*/
+    uint32_t variables= (uint32_t)(&__variables_start__);// "&" does not dereference a pointer. The value of __variables_start__is put to the data pointer
+    uint32_t boot_start= (uint32_t)(&__bootrom_start__);// "&" does not dereference a pointer. The value of __bootrom_start__is put to the boot_start pointer
+    uint32_t *eefc_fcr = (uint32_t*)EEFC_FCR; //pointer to FCR register    page_number = ((boot_start - boot_start) / IFLASH_PAGE_SIZE); //bootloader is in the beggining of the memory so IFlash_start = boot_start
+
+    uint32_t page_number = ((boot_start - IFLASH_START) / IFLASH_PAGE_SIZE);
+    uint32_t arg = 0xFFFF & (page_number << EEFC_FCR_FARG_Pos);
+    *eefc_fcr = EEFC_FCR_FCMD_SLB | arg | EEFC_FCR_PASSWD; // [0:7] CMD, [8:23] ARGS, [24:31]PASSWORD
+
     //store variabes in a buffer
     uint32_t *data = (uint32_t *) &__variables_start__;// "&" does not dereference a pointer. The value of __variables_start__is put to the data pointer
     uint32_t data_buffer[IFLASH_PAGE_SIZE/sizeof(uint32_t)];
@@ -51,14 +60,10 @@ int bootloader(void) {
       data_buffer[BOOT_COUNTER]++;
     }
 
+  /*erase variables partition. (Only 0s can be programmed)*/
 
-  /*erase variables partition*/
-  uint32_t variables= (uint32_t)(&__variables_start__);// "&" does not dereference a pointer. The value of __variables_start__is put to the data pointer
-  uint32_t boot_start= (uint32_t)(&__bootrom_start__);// "&" does not dereference a pointer. The value of __variables_start__is put to the data pointer
-  uint32_t *eefc_fcr = (uint32_t*)EEFC_FCR; //pointer to FCR register
-
-  uint32_t page_number = ((variables - boot_start) / IFLASH_PAGE_SIZE)|0x2U; //0x2U to clear 16 pages(the size of the variables partition)
-  uint32_t arg = 0xFFFF & (page_number << 8);
+  page_number = ((variables - boot_start) / IFLASH_PAGE_SIZE)|0x2U; //0x2U to clear 16 pages(the size of the variables partition)
+  arg = 0xFFFF & (page_number << EEFC_FCR_FARG_Pos);
 
   *eefc_fcr = EEFC_FCR_FCMD_EP | arg | EEFC_FCR_PASSWD; // [0:7] CMD, [8:23] ARGS, [24:31]PASSWORD
 
@@ -75,7 +80,7 @@ int bootloader(void) {
   }
 
   page_number = ((variables - boot_start) / IFLASH_PAGE_SIZE);
-  arg = 0xFFFF & (page_number << 8);
+  arg = 0xFFFF & (page_number << EEFC_FCR_FARG_Pos);
 
   *eefc_fcr = EEFC_FCR_FCMD_WP | arg | EEFC_FCR_PASSWD; // [0:7] CMD, [8:23] ARGS, [24:31]PASSWORD
 
