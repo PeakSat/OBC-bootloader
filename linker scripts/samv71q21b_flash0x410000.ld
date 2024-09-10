@@ -37,12 +37,12 @@ ENTRY(Reset_Handler)
 /* Memory Spaces Definitions */
 MEMORY
 {
-  rom      (rx)  : ORIGIN = 0x00406000, LENGTH = 0x000FD000/* rom, (2097152K/2)-(bootloader + shared variables) */
+  rom      (rx)  : ORIGIN = 0x00410000, LENGTH = 0x000F8000/* rom, (2097152K/2)-(bootloader + shared variables) */
   ram      (rwx) : ORIGIN = 0x20400000, LENGTH = 0x00060000
   ram_nocache (rwx) : ORIGIN = 0x2045E000, LENGTH = 0x2000
 }
 
-__variables_start__ = 0x00404000;/*start address of the shared variables*/
+__variables_start__ = 0x00408000;/*start address of the shared variables*/
 
 /* The stack size used by the application. NOTE: you need to adjust according to your application. */
 STACK_SIZE = DEFINED(STACK_SIZE) ? STACK_SIZE : DEFINED(__stack_size__) ? __stack_size__ : 0x8000;
