@@ -6,13 +6,13 @@ The bootloaders job is to choose the right firmware to boot from. During develop
 
 ### 1st option(easiest)
 
-There is e precompiled binary available (bin/reset_counter.bin) . The only thing necessary to use it is to upload it correctly. One easy way to do it is to use OpenOCD. If you already have it you can just run the command:
+There is e precompiled binary available (bin/reset_counter.elf) . The only thing necessary to use it is to upload it correctly. One easy way to do it is to use OpenOCD. If you already have it you can just run the command:
 
 ```shell
-openocd -f atmel_samv71_xplained_ultra.cfg -c "program reset_counter.bin 0x00503000 verify reset exit"
+openocd -f atmel_samv71_xplained_ultra.cfg -c "program reset_counter.elf verify reset exit"
 ```
 
-within the bin folder.
+within the bin folder (choso the correct .cfg file for your interface).
 
 ### 2nd option, build it yourself.
 
