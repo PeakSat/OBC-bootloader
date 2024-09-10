@@ -22,34 +22,20 @@ openocd -f atmel_samv71_xplained_ultra.cfg -c "program bootloader.elf verify res
 
 If you get a “memory region is locked message”, the MCU probably already has a version of the bootloader installed (or the memory is locked for some other reason). Erase the chip and try again. After erasing the chip you will also need to set the GPNVM boot mode selection bit using [these](https://gitlab.com/acubesat/software-management/-/wikis/ATSAM/Running-code-on-an-ATSAMV71Q21B-for-the-first-time) instructions.
 
-Make sure to **UPDATE YOUR LINKER SCRIPT** so that you have the correct memory map. To do so, you replace the linker script your project uses with one of the two provided in the linker scripts folder. Under normal development you should use the one with 0x00410000 entry point, shown by the files name. From this point forward the primary firmware will start at address 0x00410000 and will have a maximum size of 992 kB.
+Make sure to **UPDATE YOUR LINKER SCRIPT** so that you have the correct memory map. To do so, you replace the linker script your project uses with the one in the linker script directory. The default entry point is 0x00410000, which corresponds to the first firmware. If you need to biuild for the second bank, you will have to define ```ROM_ORIGIN```as  0x00508000. From this point forward the primary firmware will start at address 0x00410000 and will have a maximum size of 992 kB.
 You do need to **CHANGE YOUR CMAKE**/make/ninja or whatever you are using to build your project, so that it points to the new linker script.
 
 For development purposes, you might need a way to boot from the primary firmware regardless of the boot counter. To do this you can load the reset_boot.bin binary at 0x00508000, which resets the counter once the bootloader branches to it. At the next reset the bootloader will again branch to 0x00410000.
 
-You also need to add some code to your project so that it resets the boot counter every time it runs. reseting the counter means that your firmware runs properly. So you need to be sure that you **RESET THE COUNTER ONLY AFTER NOMINAL OPERATION IS OBSERVED**. Failing to reset the counter, or resetting it at the wrong time, will lead to undesired behavior. If you have installed the MHC peripheral libraries this code will do the trick:
-```shell
-uint32_t variables=(uint32_t)(&__variables_start__);// "&" does not dereference a pointer. The value of __variables_start__ is put to the data pointer
-uint32_t *data = (uint32_t *) variables;
-uint32_t data_buffer[IFLASH_PAGE_SIZE/sizeof(uint32_t)];
-
-data_buffer[0]=0;//reset counter
-data_buffer[1]=data[1];//keep primary firmware the same
-
-for(uint32_t i=2; i<IFLASH_PAGE_SIZE/sizeof(uint32_t); i++) // reduce memory wear
-{
-    data_buffer[i]=0xFFFFFFFF;
-}
-
-EFC_SectorErase(variables);
-EFC_PageBufferWrite(data_buffer,variables);
-```
-**THIS IS C CODE** so if you want to call it from a c++ routine, you will have to declare it as extern "C". You will also need to declare the \_\_variables_start\_\_ as ```extern uint32_t __variables_start__;``` in a .h file so that the compiler can find it. If you are facing problems you can just hard code it to 0x408000, but it is not advised.
+You also need to add some code to your project so that it resets the boot counter every time it runs. When reseting the counter, you assure the bootloader that your firmware runs properly. So you need to be sure that you **RESET THE COUNTER ONLY AFTER NOMINAL OPERATION IS OBSERVED**. Failing to reset the counter, or resetting it at the wrong time, will lead to undesired behavior. If you have installed the MHC peripheral libraries you can add the bootlib files to you project and use the ```reset_boot_counter()``` to do so. There are also two more functions ```get_primary_firmware()``` and ```void set_primary_firmare(uint32_t firmware)``` to get the ID if the running firmware and set the primary firmware.
+**THIS IS C CODE** so if you want to call it from a c++ routine, you will have to declare it as extern "C".
 
 ## High Level Explanation
 The bootloader starts by locking the memory region it occupies. Then it copies the variables from the memory location which is shared with the firmwares, and stores them in a buffer. One of the variables stored there is the boot counter. Every time the bootloader is executed, it adds 1 to that variable. It is the firmwares responsibility to reset the boot counter to 0. If it fails to do so, the bootloader will assume that the firmware did not boot correctly, and after 3 tries boot from the secondary firmware.
 
 The next variable sets the primary firmware. At any given time there will be two firmwares installed on the internal flash of the ATSAMV71Q21B. The location of the primary firmware might change, thus primary firmware does not mean the first firmware in memory. For example, a new firmware upload might be put at the second memory partition. Then the bootloader should be informed that the second partition contains the primary firmware by changing the appropriate variable on the shared memory. On the next boot, the bootloader will boot on the second partition, which contains the primary firmware.
+
+The third variable contains the ID of the firmware that the bootloader tried to boot from. Under nominal operation, the firmware can use this and the second variable to switch to the other firmware after reboot.
 
 After reading these variables, the bootloader can decide the appropriate firmware to boot from. Before branching to the correct memory address, it needs to erase the shared memory and write the buffer with the updated variables to the memory. The erase is necessary since only 0s can be programed in the type of memory that the MCU is using.
 
