@@ -54,6 +54,3 @@ The next variable sets the primary firmware. At any given time there will be two
 After reading these variables, the bootloader can decide the appropriate firmware to boot from. Before branching to the correct memory address, it needs to erase the shared memory and write the buffer with the updated variables to the memory. The erase is necessary since only 0s can be programed in the type of memory that the MCU is using.
 
 Finally the bootloader can branch to the firmwares entry point. Two things need to be implemented in the firmware for the bootloader to work correctly. One is the reset of the boot counter, which should happen at every successful boot and the second is to change the primary boot variable after a successful firmware upgrade.
-
-## TBD
-Implement the rebootCounter and changePrimaryFirmware functions in a library for ease of use.
