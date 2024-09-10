@@ -27,21 +27,21 @@ You do need to **CHANGE YOUR CMAKE**/make/ninja or whatever you are using to bui
 
 For development purposes, you might need a way to boot from the primary firmware regardless of the boot counter. To do this you can load the reset_boot.bin binary at 0x00508000, which resets the counter once the bootloader branches to it. At the next reset the bootloader will again branch to 0x00410000.
 
-You also need to add some code to your project so that it resets the boot counter every time it runs. reseting the counter means that your firmware runs properly. So you need to be sure that you **RESET THE COUNTER ONLY AFTER NOMINAL OPERATION IS OBSERVED**. Failing to reset the counter, or resetting it at the wrong time, will lead to undesired behavior. If you have installed the MHC peripheral libraries this code should do the trick:
+You also need to add some code to your project so that it resets the boot counter every time it runs. reseting the counter means that your firmware runs properly. So you need to be sure that you **RESET THE COUNTER ONLY AFTER NOMINAL OPERATION IS OBSERVED**. Failing to reset the counter, or resetting it at the wrong time, will lead to undesired behavior. If you have installed the MHC peripheral libraries this code will do the trick:
 ```shell
-uint32_t variables=(uint32_t)(&__variables_start__);// "&" does not dereference a pointer. The value of __variables_start__ is put to the data pointer  
-uint32_t *data = (uint32_t *) variables;  
-uint32_t data_buffer[IFLASH_PAGE_SIZE/sizeof(uint32_t)];  
+uint32_t variables=(uint32_t)(&__variables_start__);// "&" does not dereference a pointer. The value of __variables_start__ is put to the data pointer
+uint32_t *data = (uint32_t *) variables;
+uint32_t data_buffer[IFLASH_PAGE_SIZE/sizeof(uint32_t)];
 
-data_buffer[0]=0;//reset counter  
-data_buffer[1]=data[1];//keep primary firmware the same  
+data_buffer[0]=0;//reset counter
+data_buffer[1]=data[1];//keep primary firmware the same
 
-for(int i=2; i++; i<IFLASH_PAGE_SIZE/sizeof(uint32_t)) // reduce memory wear  
-{  
-    data_buffer[i]=0xFFFFFFFF;  
-}  
+for(uint32_t i=2; i<IFLASH_PAGE_SIZE/sizeof(uint32_t); i++) // reduce memory wear
+{
+    data_buffer[i]=0xFFFFFFFF;
+}
 
-EFC_SectorErase(variables);  
+EFC_SectorErase(variables);
 EFC_PageBufferWrite(data_buffer,variables);
 ```
 **THIS IS C CODE** so if you want to call it from a c++ routine, you will have to declare it as extern "C". You will also need to declare the \_\_variables_start\_\_ as ```extern uint32_t __variables_start__;``` in a .h file so that the compiler can find it. If you are facing problems you can just hard code it to 0x408000, but it is not advised.
