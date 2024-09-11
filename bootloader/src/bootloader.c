@@ -35,7 +35,7 @@ int bootloader(void) {
 
     uint32_t page_number = ((boot_start - IFLASH_START) / IFLASH_PAGE_SIZE);
     uint32_t arg = 0xFFFF & (page_number << EEFC_FCR_FARG_Pos);
-    // *eefc_fcr = EEFC_FCR_FCMD_SLB | arg | EEFC_FCR_PASSWD; // [0:7] CMD, [8:23] ARGS, [24:31]PASSWORD
+    *eefc_fcr = EEFC_FCR_FCMD_SLB | arg | EEFC_FCR_PASSWD; // [0:7] CMD, [8:23] ARGS, [24:31]PASSWORD
 
     //store variabes in a buffer
     uint32_t *data = (uint32_t *) &__variables_start__;// "&" does not dereference a pointer. The value of __variables_start__is put to the data pointer
