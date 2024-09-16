@@ -44,6 +44,17 @@ SEARCH_DIR(.)
  *************************************************************************/
 
 
+ /*************************************************************************
+  * Rom origin point to the entry point of the program.
+  * Comment out the 0x00500000 line to use the first bank or
+  * the 0x00410000 line to use the second bank.
+  *************************************************************************/
+
+/*use the first bank*/
+ROM_ORIGIN = DEFINED(ROM_ORIGIN) ? ROM_ORIGIN : 0x00410000;
+
+/*use the second bank*/
+/*ROM_ORIGIN = DEFINED(ROM_ORIGIN) ? ROM_ORIGIN : 0x00500000;*/
 
 
 ROM_ORIGIN = DEFINED(ROM_ORIGIN) ? ROM_ORIGIN : 0x00410000;
