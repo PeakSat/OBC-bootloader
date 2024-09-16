@@ -1,5 +1,5 @@
 ## Brief
-The bootloaders job is to choose the right firmware to boot from. During development though, there might be only one firmware uploaded and it would be very inconvenient to re-upload the bootloader each time the boot counter reaches the threshold. This project build a binary with an entry point of 0x00503000 (where the second firmware should start), which resets the boot counter, sets the first firmware as primary and branches to the first firmware. This way the first firmware will be executed no matter what, which should make it easier to develop while using the bootloader.
+The bootloaders job is to choose the right firmware to boot from. During development though, there might be only one firmware uploaded and it would be very inconvenient to re-upload the bootloader each time the boot counter reaches the threshold. This project build a binary with an entry point of 0x00500000 (where the second firmware should start), which resets the boot counter, sets the first firmware as primary and branches to the first firmware. This way the first firmware will be executed no matter what, which should make it easier to develop while using the bootloader.
 
 ## Usage
 
